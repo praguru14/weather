@@ -1,0 +1,67 @@
+<div class="weather-container">
+    <h2>Weather Information</h2>
+
+    <div class="input-container">
+        <label>Enter City Name: </label>
+        <input type="text" [(ngModel)]="city" placeholder="Enter city" />
+        <button (click)="getWeatherData()">Get Weather</button>
+    </div>
+
+    <!-- Toggle Button for Recent Searches -->
+    <div>
+        <button (click)="toggleHistory()" class="history-toggle-btn">
+            {{ showHistory ? 'Hide Recent Searches' : 'Show Recent Searches' }}
+        </button>
+
+        <div *ngIf="showHistory && getCityHistory().length" class="recent-searches">
+            <h3>Recent Searches</h3>
+            <ul>
+                <li *ngFor="let city of getCityHistory()">{{ city }}</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="loading" class="spinner"></div>
+
+    <!-- Weather Statistics -->
+    <div *ngIf="cityData?.hourly" class="stats-container">
+        <h3>Weather Statistics for {{ city }}</h3>
+        <ul>
+            <li>Highest Temperature of the Day: {{ highestTemperature }} °C</li>
+            <li>Lowest Temperature of the Day: {{ lowestTemperature }} °C</li>
+            <li>Average Humidity: {{ averageHumidity | number:'1.1-1' }} %</li>
+            <li>Maximum Wind Speed: {{ maxWindSpeed }} m/s</li>
+        </ul>
+    </div>
+
+    <!-- Weather Data Table -->
+    <div *ngIf="cityData?.hourly" class="table-container">
+        <h3>Weather Data for {{ city }}</h3>
+        <table class="weather-table">
+            <thead>
+                <tr>
+                    <th class="time-column">Time</th>
+                    <th>Temperature (°C)</th>
+                    <th>Humidity (%)</th>
+                    <th>Wind Speed (m/s)</th>
+                    <th>Wind Direction (°)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let time of cityData.hourly.time; let i = index">
+                    <td>{{ formatDate(time) }}</td>
+                    <td>{{ cityData.hourly.temperature_2m[i] }}</td>
+                    <td>{{ cityData.hourly.relative_humidity_2m[i] }}</td>
+                    <td>{{ cityData.hourly.wind_speed_10m[i] }}</td>
+                    <td>{{ cityData.hourly.wind_direction_10m[i] }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Error Message -->
+<div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+</div>
