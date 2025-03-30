@@ -1,0 +1,60 @@
+/* Center everything */
+.search-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+/* Input field and wrapper */
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 300px; /* Adjust width */
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    padding-right: 35px; /* Space for clear button */
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Clear button */
+.clear-btn {
+    position: absolute;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: red;
+}
+
+/* Better dropdown for autocomplete */
+.autocomplete-dropdown {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 5px;
+    width: 300px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Each suggestion */
+.autocomplete-item {
+    padding: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.autocomplete-item:hover {
+    background: #f0f0f0;
+}

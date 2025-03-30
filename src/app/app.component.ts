@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { WeatherDataComponent } from './components/weather-data/weather-data.component';
-import { FormBuilderComponent } from './components/form-builder/form-builder.component';
+import { CitySearchComponent } from './components/city-search/city-search.component';
+// import { FormBuilderComponent } from './components/form-builder/form-builder.component';
+// import { NgxChartjsModule } from 'ngx-chartjs';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet,WeatherDataComponent,FormBuilderComponent],
+  imports: [WeatherDataComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

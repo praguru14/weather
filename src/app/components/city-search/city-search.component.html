@@ -1,0 +1,15 @@
+<div class="search-container">
+    <label>Enter City Name: </label>
+
+    <div class="input-wrapper">
+        <input type="text" [(ngModel)]="searchText" (input)="onInputChange()" placeholder="Search city..." />
+        <button *ngIf="searchText" (click)="clearSearch()" class="clear-btn">X</button>
+    </div>
+
+    <!-- Better dropdown-style suggestion box -->
+    <div *ngIf="filteredCityList.length > 0" class="autocomplete-dropdown">
+        <div *ngFor="let city of filteredCityList" (click)="selectedCityDetails(city)" class="autocomplete-item">
+            {{ city }}
+        </div>
+    </div>
+</div>

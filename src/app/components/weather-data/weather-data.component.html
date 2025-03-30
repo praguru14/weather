@@ -2,9 +2,12 @@
     <h2>Weather Information</h2>
 
     <div class="input-container">
-        <label>Enter City Name: </label>
-        <input type="text" [(ngModel)]="city" placeholder="Enter city" />
+        
+        <!-- <input type="text" [(ngModel)]="city" placeholder="Enter city" /> -->
+    <app-city-search (citySelected)="onCitySelected($event)"></app-city-search>
         <button (click)="getWeatherData()">Get Weather</button>
+        <button (click)="getLoc()">Get Current Location</button>
+            <!-- <button (click)="clearSearch()">X</button> -->
     </div>
 
     <!-- Toggle Button for Recent Searches -->
@@ -26,7 +29,15 @@
 
     <!-- Weather Statistics -->
     <div *ngIf="cityData?.hourly" class="stats-container">
-        <h3>Weather Statistics for {{ city }}</h3>
+        <!-- <h3>Weather Statistics for {{ name }} , {{country}}</h3> -->
+        <!-- <h3 >Weather Statistics for {{ displayName }} ({{ name }}), {{ country }}</h3> -->
+        <h3 *ngIf="isLocationBased">Weather Statistics for  ({{ name }}), {{ country }}</h3>
+        <h3 *ngIf="!isLocationBased">Weather Statistics for {{ name }}, {{ country }}</h3>
+
+        <!-- <h3 *ngIf="!isLocationBased">Weather Statistics for {{ name }}, {{ country }}</h3> -->
+
+        <!-- <h6>Today's Date: {{ currentDate | date: 'dd/MM/yyyy' }}</h6> -->
+        <!-- <h6>{{displayName}}</h6> -->
         <ul>
             <li>Highest Temperature of the Day: {{ highestTemperature }} °C</li>
             <li>Lowest Temperature of the Day: {{ lowestTemperature }} °C</li>
@@ -34,6 +45,15 @@
             <li>Maximum Wind Speed: {{ maxWindSpeed }} m/s</li>
         </ul>
     </div>
+        <!-- <div *ngIf="cityData?.hourly" class="map-container">
+            <h3>Map of {{ name }}</h3>
+            <div id="map" class="map"></div>
+        </div> -->
+<!-- <div>
+    <button (click)="toggleSortOrder()">
+        Sort by Temperature: {{ sortOrder === 'asc' ? 'Ascending' : 'Descending' }}
+    </button>
+</div> -->
 
     <!-- Weather Data Table -->
     <div *ngIf="cityData?.hourly" class="table-container">
@@ -42,7 +62,11 @@
             <thead>
                 <tr>
                     <th class="time-column">Time</th>
-                    <th>Temperature (°C)</th>
+                    <!-- <th>Temperature (°C)</th> -->
+                    <th (click)="toggleTemp()" class="clickable-unit">
+                        Temperature ({{ isCelcius ? '°C' : '°F' }})
+                        <span>{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
+                    </th>
                     <th>Humidity (%)</th>
                     <th>Wind Speed (m/s)</th>
                     <th>Wind Direction (°)</th>
@@ -51,7 +75,9 @@
             <tbody>
                 <tr *ngFor="let time of cityData.hourly.time; let i = index">
                     <td>{{ formatDate(time) }}</td>
-                    <td>{{ cityData.hourly.temperature_2m[i] }}</td>
+                    <!-- <td>{{ cityData.hourly.temperature_2m[i] }}</td>
+                      -->
+                    <td>{{ convertTemp(cityData.hourly.temperature_2m[i]) }}</td>
                     <td>{{ cityData.hourly.relative_humidity_2m[i] }}</td>
                     <td>{{ cityData.hourly.wind_speed_10m[i] }}</td>
                     <td>{{ cityData.hourly.wind_direction_10m[i] }}</td>

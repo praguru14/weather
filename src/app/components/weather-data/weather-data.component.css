@@ -124,3 +124,23 @@ button:hover {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+.clickable-unit {
+    cursor: pointer;
+    color: #007bff;
+    text-decoration: underline;
+}
+
+.clickable-unit:hover {
+    color: #0056b3;
+}
+.map-container {
+    margin: 20px auto;
+    text-align: center;
+}
+
+.map {
+    height: 400px;
+    width: 100%;
+    margin: 10px auto;
+    border-radius: 10px;
+}
