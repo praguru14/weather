@@ -1,0 +1,26 @@
+<mat-sidenav-container class="sidenav-container">
+    <!-- Sidebar -->
+    <mat-sidenav #sidenav mode="side" opened>
+        <h3>Settings</h3>
+
+        <!-- Temperature Unit Toggle -->
+        <p>Temperature Unit:</p>
+        <mat-radio-group [(ngModel)]="tempUnit" (change)="setTempUnit()">
+            <mat-radio-button value="C">Celsius (°C)</mat-radio-button>
+            <mat-radio-button value="F">Fahrenheit (°F)</mat-radio-button>
+        </mat-radio-group>
+
+        <!-- Theme Toggle -->
+        <p>Theme:</p>
+        <button mat-button (click)="changeTheme('light')">Light Mode</button>
+        <button mat-button (click)="changeTheme('dark')">Dark Mode</button>
+    </mat-sidenav>
+
+    <!-- Main Content -->
+    <mat-sidenav-content>
+        <button mat-icon-button (click)="sidenav.toggle()">
+            <mat-icon>menu</mat-icon>
+        </button>
+        <ng-content></ng-content>
+    </mat-sidenav-content>
+</mat-sidenav-container>

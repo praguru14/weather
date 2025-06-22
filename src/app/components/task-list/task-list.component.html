@@ -1,0 +1,26 @@
+<div class="task-wrapper">
+    <h2>📝 Task Manager</h2>
+
+    <div class="task-input">
+        <input #taskInput type="text" placeholder="Enter a task">
+        <button (click)="addTask(taskInput)">➕ Add Task</button>
+    </div>
+<!-- 
+    <div cdkDropList class="example-list" (cdkDropListDropped)="drop($event)">
+        @for (movie of movies; track movie) {
+        <div class="example-box" cdkDrag>{{movie}}</div>
+        }
+    </div> -->
+
+<ul class="task-list"cdkDropList (cdkDropListDropped)="drop($event)">
+    <li *ngFor="let task of tasks; let i = index" cdkDrag class="task-item">
+        <input *ngIf="editedTaskIndex === i" [(ngModel)]="editedTask" />
+        <span *ngIf="editedTaskIndex !== i">{{ task }}</span>
+
+        <button (click)="editTask(i, task)">✏️</button>
+        <button *ngIf="editedTaskIndex === i" (click)="saveTask(i)">💾</button>
+        <button class="delete-btn" (click)="removeTask(i)">❌</button>
+    </li>
+</ul>
+
+</div>

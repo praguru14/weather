@@ -1,6 +1,6 @@
 <div class="weather-container">
     <h2>Weather Information</h2>
-
+   
     <div class="input-container">
         
         <!-- <input type="text" [(ngModel)]="city" placeholder="Enter city" /> -->
@@ -38,6 +38,9 @@
 
         <!-- <h6>Today's Date: {{ currentDate | date: 'dd/MM/yyyy' }}</h6> -->
         <!-- <h6>{{displayName}}</h6> -->
+        <div *ngIf="cityData?.hourly" class="chart-button-container">
+            <button (click)="openChartModal()" class="btn btn-info">Show Temperature Chart</button>
+            </div>
         <ul>
             <li>Highest Temperature of the Day: {{ highestTemperature }} °C</li>
             <li>Lowest Temperature of the Day: {{ lowestTemperature }} °C</li>
@@ -87,6 +90,38 @@
     </div>
 </div>
 
+
+
+  
+<!-- Temperature Chart Modal -->
+<div class="modal" *ngIf="showChartModal">
+    <div class="modal-content">
+        <div class="range-toggle">
+            <label>Show forecast for:</label>
+        
+            <!-- <button class="btn btn-sm" [class.active]="selectedRange === 24" (click)="setRange(24)">
+                Next 24 Hours
+            </button>
+        
+            <button class="btn btn-sm" [class.active]="selectedRange === 72" (click)="setRange(72)">
+                Next 72 Hours
+            </button> -->
+        
+            <input type="number" [ngModel]="customRangeInput" (ngModelChange)="onCustomRangeChange($event)"
+                placeholder="Enter custom hours" />
+            
+            <button (click)="applyCustomRange()">Apply</button>
+            <button (click)="reset()">Reset</button>
+          
+              
+        </div>
+          
+          
+        <span class="close" (click)="closeChartModal()">&times;</span>
+        <h3>Hourly Temperature Trend for {{ city }}</h3>
+        <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [legend]="true" [type]="'line'">
+        </canvas>
+        </div>
 <!-- Error Message -->
 <div *ngIf="errorMessage" class="error-message">
     {{ errorMessage }}

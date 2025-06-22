@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, NgZone, ViewChild } from '@angular/core';
 import { WeatherServiceService } from '../../services/weather-service.service';
 import { FormsModule, NgModel } from '@angular/forms';
 import { DatePipe, DecimalPipe, JsonPipe, NgFor, NgIf } from '@angular/common';
@@ -6,10 +6,12 @@ import { CitySearchComponent } from '../city-search/city-search.component';
 // import { CitySearchComponent } from '../city-search/city-search.component';
 // import { NgChartsModule } from 'ng2-charts';
 // import * as L from 'leaflet';
-
+import type { ChartConfiguration, ChartOptions, ChartType } from 'chart.js';
+// import { BaseChartDirective } from 'ng2-charts';
+import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 @Component({
   selector: 'app-weather-data',
-  imports: [FormsModule, NgIf, NgFor, DecimalPipe,CitySearchComponent],
+  imports: [FormsModule, NgIf, NgFor, DecimalPipe,CitySearchComponent,BaseChartDirective],
   templateUrl: './weather-data.component.html',
   styleUrl: './weather-data.component.css'
 })
@@ -41,9 +43,9 @@ clearSearch() {
       this.citySearchComponent.filteredCityList = [];  // Clear suggestions
     }
   }
+  customRange: number | null = null;
 
-
-  constructor(private weatherService: WeatherServiceService) {}
+  constructor(private weatherService: WeatherServiceService, private ngZone: NgZone) {}
 
   ngOnInit() {}
 
@@ -51,7 +53,7 @@ clearSearch() {
   toggleSortOrder() {
 
   this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-  this.sortTemperature();
+  // this.sortTemperature();
 }
 sortTemperature() {
   const direction = this.sortOrder === 'asc' ? 1 : -1;
@@ -102,7 +104,7 @@ sortTemperature() {
               this.cityData = weatherData;
               this.calculateWeatherStats();
                this.isLocationBased = isLocationBased;
-                          this.sortTemperature();  
+                          // this.sortTemperature();  
                               // this.displayName=''
            
             },
@@ -226,4 +228,107 @@ onCitySelected(city: string) {
     localStorage.removeItem('cityHistory');
     console.log("Search history cleared.");
   }
+  debounceTimer: any;
+  // customRange: number | null = null;
+
+  // applyCustomRange() {
+  //   if (this.customRange && this.customRange > 0 && this.customRange <= 168) {
+  //     this.selectedRange = this.customRange;
+  //     this.prepareChartData();
+  //   } else {
+  //     alert("Please enter a value between 1 and 168 hours.");
+  //   }
+  // }
+  applyCustomRange() {
+    const val = this.customRangeInput;
+  
+    if (val && val > 0 && val <= 168) {
+      this.selectedRange = val;
+      this.prepareChartData();
+      this.prepareChartData();
+    } else {
+      alert("Please enter a value between 1 and 168 hours.");
+    }
+  }
+  reset(){
+    this.customRangeInput = null;
+    this.selectedRange = 72; // Reset to default range
+    this.prepareChartData();
+    this.prepareChartData();
+  }
+//   closeChartModal() {
+//   this.showChartModal = false;
+//   this.reset();  // 👈 Trigger reset on close
+// }
+
+  customRangeInput: number | null = null;
+
+onCustomRangeChange(value: number) {
+  this.customRangeInput = value;
+}
+
+  
+  
+  
+
+  showChartModal = false;
+
+lineChartData: ChartConfiguration<'line'>['data'] = {
+  labels: [],
+  datasets: [
+    {
+      label: 'Temperature (°C)',
+      data: [],
+      borderColor: 'rgba(75,192,192,1)',
+      backgroundColor: 'rgba(75,192,192,0.2)',
+      tension: 0.4
+    }
+  ]
+};
+
+lineChartOptions: ChartConfiguration<'line'>['options'] = {
+  responsive: true,
+  plugins: {
+    legend: {
+      display: true
+    }
+  }
+};
+
+openChartModal() {
+  this.prepareChartData();
+  this.showChartModal = true;
+}
+
+closeChartModal() {
+  this.showChartModal = false;
+  this.reset();  // Reset the chart data when closing the modal
+}
+
+prepareChartData() {
+  if (this.chart) {
+    this.chart.update();
+  }
+  
+  const range = this.selectedRange; 
+
+  const labels = this.cityData.hourly.time
+    .slice(0, range)
+    .map((time: string) => this.formatDate(time));
+
+  const temps = this.cityData.hourly.temperature_2m
+    .slice(0, range)
+    .map((t: number) => this.convertTemp(t));
+
+  this.lineChartData.labels = labels;
+  this.lineChartData.datasets[0].data = temps;
+}
+@ViewChild(BaseChartDirective) chart?: BaseChartDirective;
+selectedRange: number = 72; 
+
+setRange(hours: number) {
+  this.selectedRange = hours;
+  this.prepareChartData();
+}
+
 }
