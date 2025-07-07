@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true, // ✅ Required for Angular 17 Standalone Component
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css'],
-  imports: [NgIf, MatIconModule, MatButtonModule, MatSidenavModule, MatRadioModule, FormsModule] // ✅ Correct imports
+  imports: [ MatIconModule, MatButtonModule, MatSidenavModule, MatRadioModule, FormsModule] // ✅ Correct imports
 })
 export class SidebarComponent {
   tempUnit = 'C'; // Default unit

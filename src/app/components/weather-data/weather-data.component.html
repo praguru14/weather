@@ -1,16 +1,18 @@
 <div class="weather-container">
     <h2>Weather Information</h2>
-   
+
+    <!-- Search Input & Location -->
     <div class="input-container">
-        
-        <!-- <input type="text" [(ngModel)]="city" placeholder="Enter city" /> -->
-    <app-city-search (citySelected)="onCitySelected($event)"></app-city-search>
+        <app-city-search (citySelected)="onCitySelected($event)"></app-city-search>
         <button (click)="getWeatherData()">Get Weather</button>
         <button (click)="getLoc()">Get Current Location</button>
-            <!-- <button (click)="clearSearch()">X</button> -->
+        <button (click)="toggleMap()">
+            {{ showMap ? 'Hide Map' : 'Show Map' }} </button>
+       <div id="map" [hidden]="!showMap" style="height: 400px; margin-top: 20px;"></div>
+
     </div>
 
-    <!-- Toggle Button for Recent Searches -->
+    <!-- Recent Searches Toggle -->
     <div>
         <button (click)="toggleHistory()" class="history-toggle-btn">
             {{ showHistory ? 'Hide Recent Searches' : 'Show Recent Searches' }}
@@ -22,50 +24,111 @@
                 <li *ngFor="let city of getCityHistory()">{{ city }}</li>
             </ul>
         </div>
+
+<!--  -->
+     <button (click)="openModal()"> Show Weather Highlights</button>
+
+<div class="modal" *ngIf="showWeatherModal" (click)="closeModal()">
+    <div class="modal-content recent-searches" (click)="$event.stopPropagation()">
+        <span class="close" (click)="closeModal()">&times;</span>
+
+        <div *ngIf="cityData?.hourly" class="stats-container">
+            <h3 *ngIf="isLocationBased">Weather Statistics for ({{ name }}), {{ country }}</h3>
+            <h3 *ngIf="!isLocationBased">Weather Statistics for {{ name }}, {{ country }}</h3>
+
+            <div class="chart-button-container">
+                <button (click)="openChartModal()" class="btn btn-info">Show Temperature Chart</button>
+            </div>
+
+            <!-- Day Navigation & Temperature Range -->
+            <div *ngIf="getDailyDataForCurrentIndex() as day">
+                <p class="day-label">Date : {{ day.formattedDate }} 📅</p>
+
+                <div class="day-temperature-nav">
+                    
+                    <button (click)="prevDay()" [disabled]="!canGoPrev()" class="arrow-btn">⬅️</button>
+                    
+                    <div class="temp-range">
+                        <span class="min-temp">{{ day.minTemp }}°C</span>
+                        <span class="separator"> - </span>
+                        <span class="max-temp">{{ day.maxTemp }}°C</span>
+                    </div>
+
+                    <button (click)="nextDay()" [disabled]="!canGoNext()" class="arrow-btn">➡️</button>
+                </div>
+
+                <!-- Optional: Show the date -->
+                
+            </div>
+
+            <!-- Other weather highlights -->
+            <ul>
+                <li>Average Humidity: {{ averageHumidity | number:'1.1-1' }} %</li>
+                <li>Maximum Wind Speed: {{ maxWindSpeed }} m/s</li>
+                <li>Max AQI: {{ maxAqiValue }} on {{ formatDateSafe(maxDateTime) }} </li>
+            </ul>
+        </div>
     </div>
+</div>
+  
+</div>
 
     <!-- Loading Spinner -->
     <div *ngIf="loading" class="spinner"></div>
 
-    <!-- Weather Statistics -->
-    <div *ngIf="cityData?.hourly" class="stats-container">
-        <!-- <h3>Weather Statistics for {{ name }} , {{country}}</h3> -->
-        <!-- <h3 >Weather Statistics for {{ displayName }} ({{ name }}), {{ country }}</h3> -->
-        <h3 *ngIf="isLocationBased">Weather Statistics for  ({{ name }}), {{ country }}</h3>
+
+
+
+    <!-- Weather Stats -->
+    <!-- <div *ngIf="cityData?.hourly" class="stats-container">
+        <h3 *ngIf="isLocationBased">Weather Statistics for ({{ name }}), {{ country }}</h3>
         <h3 *ngIf="!isLocationBased">Weather Statistics for {{ name }}, {{ country }}</h3>
 
-        <!-- <h3 *ngIf="!isLocationBased">Weather Statistics for {{ name }}, {{ country }}</h3> -->
-
-        <!-- <h6>Today's Date: {{ currentDate | date: 'dd/MM/yyyy' }}</h6> -->
-        <!-- <h6>{{displayName}}</h6> -->
-        <div *ngIf="cityData?.hourly" class="chart-button-container">
+        <div class="chart-button-container">
             <button (click)="openChartModal()" class="btn btn-info">Show Temperature Chart</button>
-            </div>
+        </div>
+
         <ul>
             <li>Highest Temperature of the Day: {{ highestTemperature }} °C</li>
             <li>Lowest Temperature of the Day: {{ lowestTemperature }} °C</li>
             <li>Average Humidity: {{ averageHumidity | number:'1.1-1' }} %</li>
             <li>Maximum Wind Speed: {{ maxWindSpeed }} m/s</li>
+            <li>Max AQI: {{maxAqiValue}} on {{formatDateSafe(maxDateTime)}} </li>
         </ul>
-    </div>
-        <!-- <div *ngIf="cityData?.hourly" class="map-container">
-            <h3>Map of {{ name }}</h3>
-            <div id="map" class="map"></div>
-        </div> -->
-<!-- <div>
-    <button (click)="toggleSortOrder()">
-        Sort by Temperature: {{ sortOrder === 'asc' ? 'Ascending' : 'Descending' }}
-    </button>
-</div> -->
+    </div> -->
 
+    <!-- <div class="day-cards-container" *ngIf="dailySummaries?.length">
+        <div *ngFor="let day of dailySummaries" class="day-card">
+            <h3>{{ day.weekday }} ({{ day.date }})</h3>
+            <p>🌡️ {{ day.minTemp }}°C - {{ day.maxTemp }}°C</p>
+            <p>💧 Humidity: {{ day.avgHumidity }}%</p>
+            <p>🌬️ Wind: {{ day.maxWind }} m/s</p>
+        </div>
+    </div> -->
+      
     <!-- Weather Data Table -->
     <div *ngIf="cityData?.hourly" class="table-container">
-        <h3>Weather Data for {{ city }}</h3>
+        <h3>Weather Data for {{ city }} (Next {{ hoursToShow }} Hours)</h3>
+        <div class="slider-wrapper" *ngIf="cityData?.hourly  && selectedTimeFilter === 'custom'">
+           <span class="slider-label">{{ hoursToShow }} hours</span>      </div>
+            <label for="timeFilter">Time Filter:</label>
+            <select id="timeFilter" [(ngModel)]="selectedTimeFilter" (change)="applyTimeFilter()">
+                <option value="" disabled selected>Select Time Filter...</option>
+                <option value="6h">Next 6 Hours</option>
+                <option value="12h">Next 12 Hours</option>
+                <option value="restOfDay">Rest of the Day</option>
+                <option value="tomorrow">Tomorrow</option>
+                <option value="custom">Custom (Slider)</option>
+            </select>
+            <div *ngIf="selectedTimeFilter === 'custom'">
+                <mat-slider min="1" max="168" step="1" class="custom-slider ">
+                    <input matSliderThumb [value]="hoursToShow" (input)="handleSliderInput($event)">
+                </mat-slider>
+                </div>
         <table class="weather-table">
             <thead>
                 <tr>
                     <th class="time-column">Time</th>
-                    <!-- <th>Temperature (°C)</th> -->
                     <th (click)="toggleTemp()" class="clickable-unit">
                         Temperature ({{ isCelcius ? '°C' : '°F' }})
                         <span>{{ sortOrder === 'asc' ? '↑' : '↓' }}</span>
@@ -73,56 +136,73 @@
                     <th>Humidity (%)</th>
                     <th>Wind Speed (m/s)</th>
                     <th>Wind Direction (°)</th>
+                    <th>Air Quality (°)</th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let time of cityData.hourly.time; let i = index">
-                    <td>{{ formatDate(time) }}</td>
-                    <!-- <td>{{ cityData.hourly.temperature_2m[i] }}</td>
-                      -->
-                    <td>{{ convertTemp(cityData.hourly.temperature_2m[i]) }}</td>
-                    <td>{{ cityData.hourly.relative_humidity_2m[i] }}</td>
-                    <td>{{ cityData.hourly.wind_speed_10m[i] }}</td>
-                    <td>{{ cityData.hourly.wind_direction_10m[i] }}</td>
+                <tr *ngFor="let time of cityData.hourly.time | slice:futureTime:futureTime + hoursToShow; let i = index">
+                    <td>{{ formatDateSafe(time) }}</td>
+                    <td>{{ convertTemp(cityData.hourly.temperature_2m[i+futureTime]) }}
+                  
+                    <span *ngIf="cityData.hourly.temperature_2m[futureTime+i] > 30">🌞</span>
+                    <span *ngIf="cityData.hourly.temperature_2m[futureTime+i] <= 30">☁️</span></td>
+                    <!-- {{ convertTemp(cityData.hourly.temperature_2m[i]) }} -->
+
+                    <!-- <td>{{ convertTemp(cityData.hourly.temperature_2m[i]) }}</td> -->
+                    <td>{{ cityData.hourly.relative_humidity_2m[futureTime+i] }}</td>
+                    <td>{{ cityData.hourly.wind_speed_10m[futureTime+i] }}</td>
+                    <td>{{ cityData.hourly.wind_direction_10m[futureTime+i] }}</td>
+                    
+                    <td *ngIf="aqiData?.hourly">
+                        <span class="moderate-aqi" *ngIf="aqiData.hourly.pm2_5[i] <= 50">Good ({{aqiData.hourly.pm2_5[futureTime+i]}})</span>
+                        <span class ="unhealthy-aqi" *ngIf="aqiData.hourly.pm2_5[i] > 50 && aqiData.hourly.pm2_5[i] <= 100">Moderate ({{aqiData.hourly.pm2_5[futureTime+i]}})</span>
+                        <span *ngIf="aqiData.hourly.pm2_5[i] > 100">Unhealthy ({{aqiData.hourly.pm2_5[futureTime+i]}})</span>
                 </tr>
+               
+                   
             </tbody>
         </table>
     </div>
 </div>
 
-
-
-  
 <!-- Temperature Chart Modal -->
 <div class="modal" *ngIf="showChartModal">
     <div class="modal-content">
-        <div class="range-toggle">
-            <label>Show forecast for:</label>
+
+        <!-- Chart Controls -->
+        <div class="range-toggle-horizontal">
+            <label class="range-label">Show forecast for {{hoursToShow}} hours : </label>
         
-            <!-- <button class="btn btn-sm" [class.active]="selectedRange === 24" (click)="setRange(24)">
-                Next 24 Hours
-            </button>
+            <mat-slider min="1" max="168" step="1" class="custom-slider-inside">
+                <input matSliderThumb [value]="hoursToShow" (input)="handleSliderInput($event)">
+            </mat-slider>
         
-            <button class="btn btn-sm" [class.active]="selectedRange === 72" (click)="setRange(72)">
-                Next 72 Hours
-            </button> -->
+            <!-- <span class="slider-label">{{ hoursToShow }} hours</span> -->
         
-            <input type="number" [ngModel]="customRangeInput" (ngModelChange)="onCustomRangeChange($event)"
-                placeholder="Enter custom hours" />
-            
-            <button (click)="applyCustomRange()">Apply</button>
-            <button (click)="reset()">Reset</button>
-          
-              
+            <button (click)="exportChartAsImage()">Download Chart</button>
         </div>
           
-          
+
+        <!-- Modal Close -->
         <span class="close" (click)="closeChartModal()">&times;</span>
-        <h3>Hourly Temperature Trend for {{ city }}</h3>
-        <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [legend]="true" [type]="'line'">
+
+        <!-- Chart -->
+        <h3>Hourly Temperature Trend for {{ city }} ({{hoursToShow}} hours)</h3>
+        <!-- <button (click)="setChartType('line')">Line</button>
+        <button (click)="setChartType('bar')">Bar</button> -->
+        <!-- <button (click)="setChartType('pie')">Pie</button> -->
+
+        <canvas baseChart [data]="lineChartData" [options]="lineChartOptions" [legend]="true" [type]="chartType">
         </canvas>
-        </div>
+    </div>
+</div>
+
+
 <!-- Error Message -->
 <div *ngIf="errorMessage" class="error-message">
     {{ errorMessage }}
 </div>
+
+
+
+  

@@ -8,7 +8,7 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 
 @Component({
   selector: 'app-root',
-  imports: [WeatherDataComponent,SidebarComponent,RouterOutlet],
+  imports: [RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -18,7 +18,7 @@ export class AppComponent {
   toggleDarkMode() {
   const body = document.body;
   body.classList.toggle('dark-mode');
-  
+   
   // Save the theme preference to local storage
   const isDarkMode = body.classList.contains('dark-mode');
   localStorage.setItem('darkMode', JSON.stringify(isDarkMode));

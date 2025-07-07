@@ -1,0 +1,9 @@
+{
+  "name": "angi-e2e",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "angi-e2e/src",
+  "implicitDependencies": ["angi"],
+  "// targets": "to see all targets run: nx show project angi-e2e --web",
+  "targets": {}
+}

@@ -25,4 +25,10 @@ export class WeatherServiceService {
     //lat=28.55422942390476&lon=77.17369465348366&format=json
   return this.http.get(`${this.currentLocationUrl}lat=${lat}&lon=${long}&format=json`);
   }
+
+  callAqiService(latitude: number, longitude: number): Observable<any> {
+    const aqiUrl = `https://air-quality-api.open-meteo.com//v1/air-quality?latitude=${latitude}&longitude=${longitude}&hourly=pm10,pm2_5`;
+    https: console.log(aqiUrl);
+    return this.http.get(aqiUrl);
+  }
 }
